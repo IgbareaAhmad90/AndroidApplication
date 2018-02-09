@@ -15,7 +15,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class Register extends AppCompatActivity implements View.OnClickListener {
     // UI references.
@@ -80,6 +79,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
         }
         //endregion
 
+        //region Crete New User Firebase
         progressBar.setVisibility(View.VISIBLE);
         mAuth = FirebaseAuth.getInstance();
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -105,6 +105,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                         }
                     }
                 });
+        //endregion
 
     }
 }

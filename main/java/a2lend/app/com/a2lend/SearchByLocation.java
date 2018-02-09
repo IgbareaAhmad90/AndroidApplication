@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,11 +46,10 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
          View rootView =inflater.inflate(R.layout.search_by_location,null);
         //super.onCreateView(inflater, container, savedInstanceState);
         // on create
+        //region init MapView
         mMapView = (MapView) rootView.findViewById(R.id.SearchMap);
         mMapView.onCreate(savedInstanceState);
-
         mMapView.onResume(); // needed to get the map to display immediately
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -96,9 +94,9 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
+        //endregion
 
         return rootView;
-        //mapProfile
     }
 
     @Override
@@ -106,6 +104,7 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
         super.onViewCreated(view, savedInstanceState);
         Toast.makeText(getContext(), "HomeFragment ", Toast.LENGTH_SHORT).show();
 
+        //region button Change type Maps
         Button uploadButton = (Button)getActivity().findViewById(R.id.mapTypeButton);
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,18 +114,17 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
                 googleMap.setMapType(++googleMapindexType);
             }
         });
+        //endregion
 
+        //region Search By Location Distance
         final TextView searchDistance = (TextView) getActivity().findViewById(R.id.SearchDistance);
-
         ImageButton SearchByDistanceButton = (ImageButton)getActivity().findViewById(R.id.search_SearchDistance);
         SearchByDistanceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //DataAccess.SearchByLocation(Mylocation,Integer.parseInt(searchDistance.getText().toString()));
-                DataAccess.UpdateMyListItems();
-
-                for(int i = 0 ; i < DataAccess.myListItems.size() ;i++ ) {
-                    Item item = DataAccess.myListItems.get(i);
+                DataAccess.SearchByLocation(Mylocation,Integer.parseInt(searchDistance.getText().toString()));
+                for(int i = 0 ; i < DataAccess.resulSearchList.size() ;i++ ) {
+                    Item item = DataAccess.resulSearchList.get(i);
                     LatLng sydney = new LatLng(
                                 item.getLatitude()
                             ,   item.getLongitude());
@@ -135,9 +133,21 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
 
             }
         });
+        //endregion
 
+        //CheckPermssion
+        // region For check Self Permission - Location
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (!EasyPermissions.hasPermissions(getActivity(), permissionLocation)) {
+                EasyPermissions.requestPermissions(getActivity()
+                        , "This sample find location from your phone to Use GoogleMaps."
+                        , RC_LOCATION_PERMS
+                        , permissionLocation);
+            }
+            return ;
+        }
+        //endregion
 
-        //search_SearchDistan  ce
     }
 
     @Override

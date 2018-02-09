@@ -45,10 +45,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
-
     public void signin(final View view) {
-
-
 
         //region Check Validation
         final String email = emailEditText.getText().toString();
@@ -80,9 +77,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         //endregion
+
         progressDialog.setTitle("Login ...");
         progressDialog.setMessage("Wait .. ");
         progressDialog.show();
+
         //region Login FireBase With Email Password
         mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override

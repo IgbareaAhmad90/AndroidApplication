@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Game2Lend</string>
+    <string name="app_name">        Game2Lend</string>
     <string name="singin">LogIn</string>
     <string name="rep_passwordhh">Rep-Password</string>
     <string name="sign_in">LogIn</string>
@@ -24,10 +24,11 @@
     <string name="btn_forgot_password">Forgot your password?</string>
     <string name="btn_link_to_register">Not a member? Get registered now!</string>
     <string name="title_activity_control_panel">ControlPanelActivity</string>
-    <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="login_anonymously">Login Anonymously</string>
     <string name="message_no_storage_permission_snackbar">message_no_storage_permission_snackbar</string>
     <string name="title_activity_home_page">HomePageActivity</string>
+
+
     <string name="MyList">My List</string>
     <string name="Gallery">Gallery</string>
     <string name="Search">Search</string>

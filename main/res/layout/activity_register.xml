@@ -6,45 +6,107 @@
     android:layout_height="match_parent"
     tools:context="a2lend.app.com.a2lend.Register">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="472dp"
-        android:layout_margin="20dp"
-        android:orientation="vertical"
-        android:padding="20dp"
-        tools:layout_editor_absoluteX="20dp"
-        tools:layout_editor_absoluteY="19dp">
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/emailR"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Email"
-            android:inputType="textEmailAddress" />
+            android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/passwordR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/password"
-            android:inputType="textPassword" />
+            <ImageView
+                android:id="@+id/header_cover_image"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="centerCrop"
+                android:src="@color/input_register" />
 
-        <EditText
-            android:id="@+id/repPasswordR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/rep_passwordhh"
-            android:inputType="textPassword" />
+            <RelativeLayout
+                android:id="@+id/profile_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/header_cover_image"
+                android:background="#ebca0707"
+                android:elevation="4dp"
+                android:paddingBottom="24dp">
 
-        <Button
-            android:id="@+id/signupR"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/singin" />
-    </LinearLayout>
+
+                <TextView
+                    android:id="@+id/user_profile_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="28dp"
+                    android:text="Register"
+                    android:textColor="#fff"
+                    android:textSize="36sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/profile_layout"
+                android:layout_marginTop="5dp"
+                android:padding="40dp"
+                android:orientation="vertical">
+
+                <EditText
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/emailR"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress" />
+
+                <EditText
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/passwordR"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/password"
+                    android:inputType="textPassword" />
+
+                <EditText
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/repPasswordR"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="@string/rep_passwordhh"
+                    android:inputType="textPassword" />
+
+                <Button
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/signupR"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/singin" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="60dp"
+                android:text="Game To Lend"
+                android:textAlignment="center"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/progressBar"

@@ -1,23 +1,16 @@
 package a2lend.app.com.a2lend;
 
-import android.*;
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.media.Image;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,23 +24,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
-import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
 
 /**
@@ -62,6 +49,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
     //fiebase image uri
     private Uri mFileUri = null;
     //
+    Uri uriCheesed ;
     private StorageReference mStorageRef;
     // Show List Images
     private GridView gridView;
@@ -80,7 +68,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
         // on create
 
     }
-    int i;
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -89,7 +77,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
 
         // SetAddapter
         gridView = getActivity().findViewById(R.id.gridView);
-        adapterImages = new MyCustomAdapter(ImageActivity.fileUri);
+        adapterImages = new MyCustomAdapter(launchCameraActivity.fileUri);
         gridView.setAdapter(adapterImages);
 
         // Todo Delete
@@ -109,7 +97,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
                new Thread(new Runnable() {
                    @Override
                    public void run() {
-                       Intent intent = new Intent(getActivity(),ImageActivity.class);
+                       Intent intent = new Intent(getActivity(),launchCameraActivity.class);
                        startActivity(intent);
                    }
                }).start();
@@ -156,15 +144,19 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
                     return;
                 }
 
-                if(ImageActivity.fileUri.size()== 0) {
+                if(launchCameraActivity.fileUri.size()== 0) {
                     MySupport.RotitColor(cameraButton);
                     return;
                 }
                 //endregion
 
+                if(uriCheesed==null){
+                    Toast.makeText(getActivity(),"Choose One Image OnClick - CheckBox", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 //Upload Image Server
-                uploadFromUri(ImageActivity.fileUri.get(0));
+                uploadFromUri(uriCheesed);
 
                 final String permissionLocation = Manifest.permission.ACCESS_FINE_LOCATION;
                 final String rationale_location_message = "This sample find location from your phone to Use GoogleMaps.";
@@ -186,7 +178,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
                 Item item = new Item();
                 item.setName(ItemName.getText().toString());
                 item.setDescription(ItemDescription.getText().toString());
-                item.setImagesUri(ImageActivity.fileUri.get(0).getLastPathSegment().toString());
+                item.setImagesUri(uriCheesed.getLastPathSegment().toString());
                 item.setLatitude( MyLocation.getLatitude());
                 item.setLongitude( MyLocation.getLongitude());
                 item.setTimeAddItem(new Date().getTime()+"");
@@ -195,7 +187,7 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
                 DataAccess.AddObject(item);
 
                 Toast.makeText(getActivity(), "succeed", Toast.LENGTH_SHORT).show();
-                ImageActivity.fileUri.clear();
+                launchCameraActivity.fileUri.clear();
                 //  MySupport.hideProgressDialog(progressDialog);
 
                 // Intent Fragment
@@ -213,35 +205,11 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
         out.putParcelable(KEY_FILE_URI, mFileUri);
         out.putParcelable(KEY_DOWNLOAD_URL, mDownloadUrl);
     }
+
     @Override
     public void onResume() {
         super.onResume();
-        if(ImageActivity.fileUri.size() > 0){
             adapterImages.notifyDataSetChanged();
-
-        }
-    }
-
-    //region Get Location With Permission
-    public Location getlocation() {
-        Location myLocation = null;
-        try {
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-            if (locationManager != null) {
-                if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getContext(), "Location Permission Denied", Toast.LENGTH_SHORT).show();
-                    return null;
-                }
-                myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (myLocation == null) {
-                    myLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-                }
-            }
-        }
-        catch (Exception ex){
-        }
-        return myLocation;
     }
 
     @Override
@@ -262,7 +230,75 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
 
     }
 
+    // Upload File To firebase
+    private void uploadFromUri(Uri fileUri) {
 
+        // Toast.makeText(getActivity(), fileUri.toString(), Toast.LENGTH_SHORT).show();
+
+        final String m_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
+
+        Log.d("PathImage",m_path);
+        Log.d(TAG, "uploadFromUri:src:" + fileUri.toString());
+
+        // Get a reference to store file at photos/<FILENAME>.jpg
+        final StorageReference photoRef = mStorageRef.child("photos").child(fileUri.getLastPathSegment());
+
+
+        //region Upload file to Firebase Storage
+        Log.d(TAG, "uploadFromUri:dst:" + photoRef.getPath());
+        photoRef.putFile(fileUri).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                // Upload succeeded
+                Log.d(TAG, "uploadFromUri:onSuccess");
+
+                // Get the public download URL
+                mDownloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
+                // Change The Uri Local Phone with Uri Server ;
+                // To Save Uri Server with the Object Item
+                //if(i<launchCameraActivity.fileUri.size())
+                //     launchCameraActivity.fileUri.set(i, mDownloadUrl);
+
+                Log.d(TAG, "mDownloadUrl:" + mDownloadUrl);
+
+                // Toast.makeText(getActivity(),"onSuccess", Toast.LENGTH_SHORT).show();
+
+            }
+        })
+                .addOnFailureListener(getActivity(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Upload failed
+                        Log.w(TAG, "uploadFromUri:onFailure", exception);
+
+                        mDownloadUrl = null;
+
+                        //  Toast.makeText(getActivity(), "Error: upload failed", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        //endregion [END upload_from_uri]
+
+    }
+    //Show Message No Gps
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("your GPS is Off you have to  run it before complete this process  ")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+    //List Adapter
     public class MyCustomAdapter extends BaseAdapter {
 
         public  List<Uri>  listItems ;
@@ -291,95 +327,26 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
 
             LayoutInflater mInflater = getLayoutInflater();
 
-            if(position<ImageActivity.fileUri.size()) {
+            if(position< launchCameraActivity.fileUri.size()) {
                 final Uri imageItemUri = listItems.get(position);
 
                 View view = mInflater.inflate(R.layout.image_item,null);
 
                 ImageView image = view.findViewById(R.id.imageViewItem);
                 CheckBox checkBox = view.findViewById(R.id.checkBox);
-                checkBox.isChecked();
+                checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        uriCheesed = listItems.get(position);
+                    }
+                });
                 image.setImageURI(imageItemUri);
                 return view;
             }
             return null;
-
-
         }
-
     }
 
-
-
-    private void uploadFromUri(Uri fileUri) {
-
-      //  Toast.makeText(getActivity(), fileUri.toString(), Toast.LENGTH_SHORT).show();
-
-        final String m_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
-
-        Log.d("PathImage",m_path);
-        Log.d(TAG, "uploadFromUri:src:" + fileUri.toString());
-
-        // [START get_child_ref]
-        // Get a reference to store file at photos/<FILENAME>.jpg
-        final StorageReference photoRef = mStorageRef.child("photos").child(fileUri.getLastPathSegment());
-
-        //final StorageReference photoRefs =m_path;
-        // [END get_child_ref]
-
-        //region Upload file to Firebase Storage
-        Log.d(TAG, "uploadFromUri:dst:" + photoRef.getPath());
-        photoRef.putFile(fileUri).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // Upload succeeded
-                        Log.d(TAG, "uploadFromUri:onSuccess");
-
-                        // Get the public download URL
-                        mDownloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
-                        // Change The Uri Local Phone with Uri Server ;
-                        // To Save Uri Server with the Object Item
-                        //if(i<ImageActivity.fileUri.size())
-                        //     ImageActivity.fileUri.set(i, mDownloadUrl);
-
-                        Log.d(TAG, "mDownloadUrl:" + mDownloadUrl);
-
-                       // Toast.makeText(getActivity(),"onSuccess", Toast.LENGTH_SHORT).show();
-
-                    }
-                })
-                .addOnFailureListener(getActivity(), new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Upload failed
-                        Log.w(TAG, "uploadFromUri:onFailure", exception);
-
-                        mDownloadUrl = null;
-
-                        //  Toast.makeText(getActivity(), "Error: upload failed", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-        //endregion [END upload_from_uri]
-
-    }
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("your GPS is Off you have to  run it before complete this process  ")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
-    }
 
 
 }

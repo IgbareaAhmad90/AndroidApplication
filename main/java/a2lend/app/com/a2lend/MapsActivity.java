@@ -90,29 +90,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-    public Location getlocation() {
-        Location myLocation = null;
-        try {
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            if (locationManager != null) {
-
-
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Location Permission Denied", Toast.LENGTH_SHORT).show();
-                    return null;
-                }
-                myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (myLocation == null) {
-                    myLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-
-                }
-            }
-        }
-        catch (Exception ex){
-        }
-        return myLocation;
-    }
-
 
     /**
      * Manipulates the map once available.

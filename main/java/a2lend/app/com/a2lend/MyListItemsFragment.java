@@ -1,6 +1,6 @@
 package a2lend.app.com.a2lend;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,7 +24,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -169,15 +167,31 @@ public class MyListItemsFragment extends Fragment {
             DeleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                    alert.setTitle("Delete entry");
+                    alert.setMessage("Are you sure you want to delete?");
+                    alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // continue with delete
+                            if(DataAccess.myListItems.remove(item))
+                                Log.d("MyListDelete", "Delete successful");
+                            if(DataAccess.deleteItem(item))
+                                Log.d("MyListDelete", "Delete successful ");
 
-                    if(DataAccess.myListItems.remove(item))
-                        Log.d("MyListDelete", "Delete successful");
-                    if(DataAccess.deleteItem(item))
-                        Log.d("MyListDelete", "Delete successful ");
+                           //notify Data Set List Changed
+                            adapter.notifyDataSetChanged();
+                            flagRefreshList=true;
+                        }
+                    });
+                    alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // close dialog
+                            dialog.cancel();
+                        }
+                    });
+                    alert.show();
 
 
-                    adapter.notifyDataSetChanged();
-                    flagRefreshList=true;
 
                 }
             });
@@ -221,15 +235,6 @@ public class MyListItemsFragment extends Fragment {
 
             TextView des= (TextView) view.findViewById(R.id.disItemDialog);
             des.setText(item.description);
-
-            ImageButton GoButton = (ImageButton)view.findViewById(R.id.GoDialog);
-            GoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    alertDialog.dismiss();
-                }
-            });
-
 
 
             ImageButton BackButton = (ImageButton) view.findViewById(R.id.BackDialog);
@@ -286,7 +291,7 @@ public class MyListItemsFragment extends Fragment {
                         itemTemp.user=item.getUser();
                         itemTemp.setName(name.getText().toString());
                         itemTemp.setDescription(description.getText().toString());
-                       // item.setImagesUri(ImageActivity.fileUri.get(0).getLastPathSegment().toString());
+                       // item.setImagesUri(launchCameraActivity.fileUri.get(0).getLastPathSegment().toString());
                         itemTemp.setImagesUri(item.getImagesUri());
                         itemTemp.setLatitude( MyLocation.getLatitude());
                         itemTemp.setLongitude( MyLocation.getLongitude());

@@ -44,7 +44,7 @@ import static android.content.Context.LOCATION_SERVICE;
 
     private static final int RC_TAKE_PICTURE = 101;
     private static final int RC_STORAGE_PERMS = 102;
-
+    //--|
     public static ProgressDialog showProgressDialog(Context context , String title , String Message ,int Style) {
             ProgressDialog mProgressDialog = new ProgressDialog(context);
             mProgressDialog.setTitle(title);
@@ -52,6 +52,7 @@ import static android.content.Context.LOCATION_SERVICE;
             mProgressDialog.setIndeterminate(true);
         return mProgressDialog;
     }
+    //--|
     public static boolean hideProgressDialog(ProgressDialog mProgressDialog) {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
@@ -59,6 +60,7 @@ import static android.content.Context.LOCATION_SERVICE;
         }
         return false;
     }
+
     public static void showMessageDialog(Context context ,String title, String message) {
         AlertDialog ad = new AlertDialog.Builder(context)
                 .setTitle(title)
@@ -66,8 +68,7 @@ import static android.content.Context.LOCATION_SERVICE;
                 .create();
         ad.show();
     }
-
-
+    //--|
     public static File createFileAboutExternalStorage(String dirName,String fileName){
         File dir = new File(Environment.getExternalStorageDirectory() + "/"+ fileName);
         File file = new File(dir, fileName + "__" +UUID.randomUUID().toString() + ".jpg");
@@ -87,51 +88,18 @@ import static android.content.Context.LOCATION_SERVICE;
         return file;
     }
 
-    // firebase Package
+    // //--| firebase Package
     public static Uri getFileUri(Context context,File file){
         // Create content:// URI for file, required since Android N
         // See: https://developer.android.com/reference/android/support/v4/content/FileProvider.html
-         String firebasePackage = "com.google.firebase.quickstart.firebasestorage.fileprovider";
+         String firebasePackage = "com.firebase.abo3le.firebasehelloworld.fileprovider";
          return FileProvider.getUriForFile(context, firebasePackage , file);
-    }
-    /*
-    public  static void launchCamera(Uri mFileUri){
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
-        startActivityForResult(takePictureIntent, RC_TAKE_PICTURE);
-    }
-
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("onActivityResult", "onActivityResult:" + requestCode + ":" + resultCode + ":" + data);
-        if (requestCode == RC_TAKE_PICTURE) {
-            if (resultCode == RESULT_OK) {
-                if (mFileUri != null) {
-                    uploadFromUri(mFileUri);
-                } else {
-                    Log.w(TAG, "File URI is null");
-                }
-            } else {
-                Toast.makeText(this, "Taking picture failed.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    Snackbar.make(getApplicationContext(), "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-    */
-
-    public void printSnackbar(Context context , String s){
-
     }
 
     public static void RotitColor(final ImageButton but){
         but.setBackgroundColor(Color.RED);
-
-
     }
-
-    //region isEmailValid
+    //--|
     public static boolean isEmailValid(String email) {
         boolean isValid = false;
 
@@ -145,8 +113,6 @@ import static android.content.Context.LOCATION_SERVICE;
         }
         return isValid;
     }
-    //endregion
-
 
     public static boolean goToFragment(Fragment fragment, FragmentActivity activity){
        try {
@@ -168,7 +134,6 @@ import static android.content.Context.LOCATION_SERVICE;
        }
     }
 
-    //region Get Location With Permission
     public static Location getlocation(FragmentActivity fragmentActivity) {
         Location myLocation = null;
         try {
@@ -189,8 +154,7 @@ import static android.content.Context.LOCATION_SERVICE;
         }
         return myLocation;
     }
-
-
+    //--|
     public static void  launchCamera(FragmentActivity fragmentActivity) {
         final String TAG = "launchCamera";
         Log.d(TAG, "Start");
@@ -234,8 +198,8 @@ import static android.content.Context.LOCATION_SERVICE;
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
         fragmentActivity.startActivityForResult(takePictureIntent, RC_TAKE_PICTURE);
     }
-
-    public  static  void  hideKeyBoard(View view,FragmentActivity activity){
+    //--|
+    public static  void  hideKeyBoard(View view,FragmentActivity activity){
         if (view != null) {
             InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);

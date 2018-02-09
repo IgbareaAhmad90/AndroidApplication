@@ -1,7 +1,5 @@
 package a2lend.app.com.a2lend;
 
-import android.*;
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -12,8 +10,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,9 +21,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseUser;
-
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import pub.devrel.easypermissions.EasyPermissions;
@@ -49,6 +42,8 @@ public class ProfileFragment extends Fragment implements EasyPermissions.Permiss
         View rootView = inflater.inflate(R.layout.fragment_profile, null);
         //super.onCreateView(inflater, container, savedInstanceState);
         // on create
+
+        //region Map Settings Inint
         mMapView = (MapView) rootView.findViewById(R.id.mapProfile);
         mMapView.onCreate(savedInstanceState);
 
@@ -59,35 +54,47 @@ public class ProfileFragment extends Fragment implements EasyPermissions.Permiss
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
+                // Buttons Zoom in/out
                 googleMap.setBuildingsEnabled(true);
                 googleMap.getUiSettings().setZoomControlsEnabled(true);
-                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-                // For showing a move to my location button
+                //To Change Type to MAP_TYPE_HYBRID
+                //googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+                // region For check Self Permission - Location
                 if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     if (!EasyPermissions.hasPermissions(getActivity(), permissionLocation)) {
                         EasyPermissions.requestPermissions(getActivity()
                                 , "This sample find location from your phone to Use GoogleMaps."
-                                , 102
+                                , RC_LOCATION_PERMS
                                 , permissionLocation);
                     }
                     return ;
                 }
+                //endregion
+
                 googleMap.setMyLocationEnabled(true);
+
+                // region get My Location
                 Location location = MySupport.getlocation(getActivity());
                 if(location==null){
                     Toast.makeText(getActivity(), "Run Location Gps ", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                //endregion
 
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng( location.getLatitude(),location.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("You Are Location").snippet("Marker Description"));
+                googleMap.addMarker(new MarkerOptions().position(sydney).title("You Are Location").snippet("Now"));
+
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(10).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
             }
         });
+        //endregion
 
         return rootView;
         //mapProfile
@@ -97,24 +104,26 @@ public class ProfileFragment extends Fragment implements EasyPermissions.Permiss
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //  created
-        Toast.makeText(getContext(), "Profile Fragment", Toast.LENGTH_SHORT).show();
 
+        // Title Page
         TextView user_profile_name = (TextView) getActivity().findViewById(R.id.user_profile_name);
         TextView PemailViewText = (TextView) getActivity().findViewById(R.id.PemailViewText);
 
+        // User Information
         TextView name = (TextView) getActivity().findViewById(R.id.PuserName);
         TextView email = (TextView) getActivity().findViewById(R.id.PEmail);
         TextView phone = (TextView) getActivity().findViewById(R.id.PNumber);
 
+        //region Get User FirebaseUser Correct
         FirebaseUser user = DataAccess.getUser();
         if(!user.isAnonymous()) {
-
             user_profile_name.setText(user.getDisplayName());
             PemailViewText.setText(user.getEmail());
             name.setText(user.getDisplayName());
             email.setText(user.getEmail());
             phone.setText(user.getPhoneNumber());
         }
+        //endregion
 
     }
 
@@ -154,5 +163,3 @@ public class ProfileFragment extends Fragment implements EasyPermissions.Permiss
     }
 }
 
-//user_profile_name
-//PemailViewText

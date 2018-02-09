@@ -17,12 +17,14 @@ import com.google.firebase.auth.FirebaseUser;
  */
 
 public class ProfileUpdateFragment extends Fragment {
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_update_profile,null);
         //super.onCreateView(inflater, container, savedInstanceState);
         // on create
+
     }
 
     @Override
@@ -34,17 +36,16 @@ public class ProfileUpdateFragment extends Fragment {
         TextView user_profile_name = (TextView) getActivity().findViewById(R.id.user_profile_name);
         TextView PemailViewText = (TextView) getActivity().findViewById(R.id.PemailViewText);
 
+        user_profile_name.setText("Update Profile");
+        PemailViewText.setText("Enter only the relevant information !!");
+
         EditText nameEditText = (EditText) getActivity().findViewById(R.id.ProfileUserName);
         EditText emailEditText = (EditText) getActivity().findViewById(R.id.ProfileUserName);
         EditText phoneEditText = (EditText) getActivity().findViewById(R.id.ProfileUserName);
 
-
         FirebaseUser user = DataAccess.getUser();
 
-
-      //  user_profile_name.setText(user.getDisplayName());
-      //  PemailViewText.setText(user.getEmail());
-
+        // init EditText With The details
         nameEditText.setText(user.getDisplayName());
         emailEditText.setText(user.getEmail());
         phoneEditText.setText(user.getPhoneNumber());
@@ -55,6 +56,3 @@ public class ProfileUpdateFragment extends Fragment {
 
 
 }
-
-//user_profile_name
-//PemailViewText

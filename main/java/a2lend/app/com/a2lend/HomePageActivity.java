@@ -2,8 +2,6 @@ package a2lend.app.com.a2lend;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -18,12 +16,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import org.w3c.dom.Text;
@@ -36,20 +34,22 @@ public class HomePageActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+        // find ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        // Find HomeFragment The Default Fragment -
         frameLayout = (RelativeLayout)findViewById(R.id.HomeLayout);
-        frameLayout.setVisibility(View.VISIBLE);
+        frameLayout.setVisibility(View.VISIBLE); // VISIBLE  Fragment
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                         this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        //region Menu Button - Open Navigation
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 drawer.openDrawer(GravityCompat.START);
@@ -58,10 +58,7 @@ public class HomePageActivity extends AppCompatActivity
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                 }
 
-                /*
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
-        //User Profile
+                //User Profile
                 FirebaseUser user = DataAccess.getUser();
                 //DataAccess.refresh();
                 DataAccess.myListItems.clear();
@@ -75,19 +72,15 @@ public class HomePageActivity extends AppCompatActivity
                 }
             }
         });
-
-
+        //endregion
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-
     }
 
     @Override
     public void onBackPressed() {
         Log.d("onBackPressed","Press");
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -102,12 +95,6 @@ public class HomePageActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.home_page, menu);
         Log.d("CreateOptionsMenu",menu.toString());
         return true;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
     }
 
     @Override
@@ -128,6 +115,7 @@ public class HomePageActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
+    // Handle navigation view item clicks here.
     public boolean onNavigationItemSelected(MenuItem item) {
 
         // Handle navigation view item clicks here.
@@ -144,17 +132,25 @@ public class HomePageActivity extends AppCompatActivity
         } else if (id == R.id.nav_manage) {
             MySupport.goToFragment(new ControlPanelFragment(),this);
         } else if (id == R.id.nav_share) {
+            //Todo Check
             MySupport.goToFragment(new HomeFragment(),this);
             frameLayout.setVisibility(View.VISIBLE);
         } else if (id == R.id.nav_send) {
-
+            //Todo Check
+            MySupport.goToFragment(new HomeFragment(),this);
+            frameLayout.setVisibility(View.VISIBLE);
         }else if (id == R.id.nav_about) {
-            Intent intent = new Intent(this,MapsActivity.class);
-            startActivity(intent);
+            MySupport.goToFragment(new AboutFragment(),this);
+
+            // Todo Delete 2 Rows
+           // Intent intent = new Intent(this,MapsActivity.class);
+           // startActivity(intent);
         }else if (id == R.id.nav_addItem) {
-            MySupport.goToFragment(new AddNewItemFragment(),this);
+            MySupport.goToFragment(new SelectImage(),this);
         }else if (id == R.id.nav_sginout) {
-            // FirebaseAuth.getInstance().signOut();
+            finish();
+            DataAccess.auth.signOut();
+            //System.exit(0);
 
         }
 
@@ -163,6 +159,9 @@ public class HomePageActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+    //region Buttons View view To Change FragmentLayout
 
     public void update(View view) throws InterruptedException {
 
@@ -208,7 +207,7 @@ public class HomePageActivity extends AppCompatActivity
     }
 
     public void AddNewItemButton(View view) {
-        MySupport.goToFragment(new AddNewItemFragment(),this);
+        MySupport.goToFragment(new SelectImage(),this);
 
     }
 
@@ -227,8 +226,11 @@ public class HomePageActivity extends AppCompatActivity
         MySupport.goToFragment(new SearchByLocation(),this);
 
     }
+
     public void GoControlPanelButton(View view) {
         MySupport.goToFragment(new ControlPanelFragment(),this);
 
     }
+
+    //endregion Buttons
 }

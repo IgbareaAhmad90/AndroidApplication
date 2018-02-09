@@ -1,25 +1,19 @@
 package a2lend.app.com.a2lend;
 
 import android.content.Context;
-import android.database.DataSetObserver;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -60,14 +54,12 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //  created
-        //Toast.makeText(getContext(), "Search Fragment", Toast.LENGTH_SHORT).show();
 
+        //region init ListView
         listView = (ListView) view.findViewById(R.id.SearchListView);
-        if(listView==null)
-            return;
-        listView.clearAnimation();
         adapter = new MyCustomAdapter(DataAccess.resulSearchList); // MyListItems
         listView.setAdapter(adapter);
+        //endregion
 
         final  TextView searchName = (TextView) getActivity().findViewById(R.id.SearchName);
 
@@ -94,46 +86,51 @@ public class SearchFragment extends Fragment {
         };
         SearchButtonUp.setOnClickListener(onClickListenerSearch);
         SerachButtonDown.setOnClickListener(onClickListenerSearch);
-
-
         //endregion
 
-        //region SearchLocationButton
+        //region Go SearchLocationButton
         ImageButton SearchLocationButton = (ImageButton)getActivity().findViewById(R.id.search_SearchButtunLocation);
         SearchLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String ItemName = searchName.getText().toString();
-                listView.clearAnimation();
-                DataAccess.SearchByName(ItemName);
-                if(DataAccess.resulSearchList.size()==0) {
 
+                listView.clearAnimation();
+                // Search
+                DataAccess.SearchByName(ItemName);
+
+                if(DataAccess.resulSearchList.size()==0) {
+                    Snackbar.make(v, "Result Not Found ! ", Snackbar.LENGTH_LONG)
+                            .setAction("Search", null).show();
                 }
+                //region hide Keyboard
                 if (v != null) {
                     InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
+                //endregion
+
                 adapter.notifyDataSetChanged();
                 MySupport.goToFragment(new SearchByLocation(),getActivity());
             }
         });
         //endregion
 
-        //region Home
+        //region Go FragmentHome
         ImageButton GoBackButton = (ImageButton)getActivity().findViewById(R.id.Home);
         GoBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //region hide Keyboard
                 if (v != null) {
                     InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 }
+                //endregion
                 MySupport.goToFragment(new ControlPanelFragment(),getActivity());
             }
         });
         //endregion
-
-
 
         // refresh ListItems to check if have messages - Up date
         //region Handler flagRefreshList
@@ -149,6 +146,8 @@ public class SearchFragment extends Fragment {
         }, 100);
         //endregion Handler flagRefreshList
     }
+
+   //region Adapter
     public class MyCustomAdapter extends BaseAdapter {
 
         public  List<Item>  listItems ;
@@ -263,15 +262,6 @@ public class SearchFragment extends Fragment {
             TextView des= (TextView) view.findViewById(R.id.disItemDialog);
             des.setText(item.description);
 
-            ImageButton GoButton = (ImageButton)view.findViewById(R.id.GoDialog);
-            GoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    alertDialog.dismiss();
-                }
-            });
-
-
 
             ImageButton BackButton = (ImageButton) view.findViewById(R.id.BackDialog);
             if(item.user.equals(DataAccess.getUserId())) {
@@ -327,7 +317,7 @@ public class SearchFragment extends Fragment {
                         itemTemp.user=item.getUser();
                         itemTemp.setName(name.getText().toString());
                         itemTemp.setDescription(description.getText().toString());
-                        // item.setImagesUri(ImageActivity.fileUri.get(0).getLastPathSegment().toString());
+                        // item.setImagesUri(launchCameraActivity.fileUri.get(0).getLastPathSegment().toString());
                         itemTemp.setImagesUri(item.getImagesUri());
                         itemTemp.setLatitude( MyLocation.getLatitude());
                         itemTemp.setLongitude( MyLocation.getLongitude());
@@ -357,7 +347,7 @@ public class SearchFragment extends Fragment {
         }
 
     }
-
+    //endregion
 
 
 }

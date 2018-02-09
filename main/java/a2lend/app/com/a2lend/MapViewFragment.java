@@ -1,6 +1,7 @@
 package a2lend.app.com.a2lend;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 /**
  * Created by Igbar on 1/23/2018.
@@ -68,10 +70,46 @@ public class MapViewFragment extends Fragment {
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                DrawCoordinateSystem(googleMap);
             }
         });
 
         return rootView;
+    }
+    // Draw Coordinate System by 0.0 - 0.0
+    public void  DrawCoordinateSystem(GoogleMap mMap){
+
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 0.001), new LatLng(179.99, 0.001))
+                .width(10)
+                .color(Color.GREEN)
+                .geodesic(true));
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 0.001), new LatLng(-179.99, 0.001))
+                .width(10)
+                .color(Color.GREEN)
+                .geodesic(true));
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 0.001), new LatLng(0.001, 179.99))
+                .width(10)
+                .color(Color.RED)
+                .geodesic(true));
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 0.001), new LatLng(0.001,-179.99))
+                .width(10)
+                .color(Color.RED)
+                .geodesic(true));
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 179.99), new LatLng(84.99, 179.99))
+                .width(10)
+                .color(Color.DKGRAY)
+                .geodesic(true));
+        mMap.addPolyline(new PolylineOptions()
+                .add( new LatLng(0.001, 179.99), new LatLng(-84.99, 179.99))
+                .width(10)
+                .color(Color.DKGRAY)
+                .geodesic(true));
+
     }
 
     @Override

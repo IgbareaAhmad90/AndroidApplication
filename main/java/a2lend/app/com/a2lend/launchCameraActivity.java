@@ -3,10 +3,13 @@
  */
 package a2lend.app.com.a2lend;
 
+import android.*;
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -14,6 +17,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
@@ -48,7 +53,7 @@ import java.util.UUID;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class ImageActivity extends AppCompatActivity implements
+public class launchCameraActivity extends AppCompatActivity implements
         View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
     public static ArrayList<Uri> fileUri = new ArrayList<Uri>();
@@ -56,11 +61,12 @@ public class ImageActivity extends AppCompatActivity implements
     private Uri mFileUri = null;
 
 
-    final String permissionWrite = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    final String rationale_storage_message = "This sample reads images from your camera to demonstrate uploading.";
 
     private static final int RC_TAKE_PICTURE = 101;
-    private static final int RC_STORAGE_PERMS = 102;
+    private static final int RC_STORAGEWRITE = 102;
+    private static final int RC_CAMERA = 103;
+    private static final int RC_STORAGEREAD = 104;
+
     private BroadcastReceiver mDownloadReceiver;
 
 
@@ -70,7 +76,6 @@ public class ImageActivity extends AppCompatActivity implements
     private static final String KEY_DOWNLOAD_URL = "key_download_url";
 
     private static final String TAG = "Storage#MainActivity";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +89,7 @@ public class ImageActivity extends AppCompatActivity implements
             mDownloadUrl = savedInstanceState.getParcelable(KEY_DOWNLOAD_URL);
         }
 
-        launchCamera();
+        launchCamera(this);
     }
 
     @Override
@@ -92,16 +97,33 @@ public class ImageActivity extends AppCompatActivity implements
 
     }
     //launch camera
-    private void  launchCamera() {
+    private void  launchCamera(Context context) {
 
         Log.d(TAG, "launchCamera");
 
-        //region Permissions - Check that we have permission to read images from external storage.
-        if (!EasyPermissions.hasPermissions(this, permissionWrite)) {
-            EasyPermissions.requestPermissions(this, rationale_storage_message,RC_STORAGE_PERMS, permissionWrite );
-            return;
-        }
-        //endregion
+
+            String rationale_camerea_message = "This sample reads images from your camera to demonstrate uploading.";
+
+            //region Permissions - Check that we have permission to read images from external storage.
+            //if (ActivityCompat.checkSelfPermission(context,  Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED )
+            if (!EasyPermissions.hasPermissions(this,  Manifest.permission.CAMERA)) {
+                EasyPermissions.requestPermissions(this, rationale_camerea_message, RC_CAMERA,  Manifest.permission.CAMERA);
+                return;
+            }
+
+            String rationale_write_sotrage_message = "This sample writes images from your storage to demonstrate uploading.";
+
+            if (!EasyPermissions.hasPermissions(this,  Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                EasyPermissions.requestPermissions(this, rationale_write_sotrage_message, RC_CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+             String rationale_read_sotrage_message = "This sample reads images from your storage to demonstrate uploading.";
+
+            if (!EasyPermissions.hasPermissions(this,  Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                EasyPermissions.requestPermissions(this, rationale_write_sotrage_message, RC_CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE);
+                return;
+            }
+
 
         //region Choose file storage location, must be listed in res/xml/file_paths.xml
         ImageName = UUID.randomUUID().toString();
@@ -184,6 +206,28 @@ public class ImageActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        if (requestCode == RC_CAMERA) {
+            Toast.makeText(this, "Successfully Permission Camera", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "CAMERA permission has now been granted. Showing preview.");
+            Toast.makeText(this, "CAMERA permission has now been granted. Showing preview.", Toast.LENGTH_SHORT).show();
+            launchCamera(this);
+        }
+        else if (requestCode == RC_STORAGEWRITE) {
+            Toast.makeText(this, "Successfully Permission Write Storage", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Write Storage permission has now been granted. Showing preview.");
+            Toast.makeText(this, "Write Storage permission has now been granted. Showing preview.", Toast.LENGTH_SHORT).show();
+            launchCamera(this);
+        }
+        else if (requestCode == RC_STORAGEREAD) {
+            Toast.makeText(this, "Successfully Permission Read Storage", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Read Storage permission has now been granted. Showing preview.");
+            Toast.makeText(this, "Read Storage permission has now been granted. Showing preview.", Toast.LENGTH_SHORT).show();
+            launchCamera(this);
+        }
+        else {
+            Toast.makeText(this, " permission Dined. Cant use This Function", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override

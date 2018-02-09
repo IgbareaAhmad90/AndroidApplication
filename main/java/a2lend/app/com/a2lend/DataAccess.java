@@ -2,7 +2,6 @@ package a2lend.app.com.a2lend;
 
 import android.location.Location;
 import android.net.Uri;
-import android.net.wifi.hotspot2.pps.Credential;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -44,18 +43,16 @@ public class DataAccess {
     public static DatabaseReference databaseReference = database.getReference();
     // item Reference
     public static DatabaseReference ReferenceItems = databaseReference.child("items");
-    // List Items - Buffer Reader By the server
-
     // StorageReference
     public static StorageReference mStorageRefPhotos = FirebaseStorage.getInstance().getReference().child("photos");
 
     public static List<Item> myListItems = new ArrayList<Item>();
+
     public static List<Item> resulSearchList = new ArrayList<Item>();
 
     public DataAccess(){
+
     }
-
-
 
     public static FirebaseUser getUser(){
         return auth.getCurrentUser();
@@ -138,7 +135,6 @@ public class DataAccess {
         Log.w(TAG,"Remove Image : - "+ item.getImagesUri());
         return true;
     }
-
 
     public static boolean updateObject(Item item) {
         String TAG = "DataAccess#updateItem";
@@ -281,22 +277,6 @@ public class DataAccess {
         return myListItems;
     }
 
-
-
-
-    //  DataSnapshot dataSnapshot1 = post;
-    //  Iterable<DataSnapshot> w = dataSnapshot1.getChildren();
-    //   for(DataSnapshot post1 : w){
-    //     if(post1.getKey().equals("location")){
-    //          Log.w("LocationObject",post1.getKey());
-    //          l = post1.getValue(Location.class);
-    //      }
-    //      Log.w("Object","key : "+post1.getKey().toString()+"\nValue:"+post1.getValue() );
-    //   Log.w("Object ",item.name +" " +item.description + "\n" );
-
-
-    ///////////////////////////////////////////////////////////////////////
-    // [START upload_from_uri]
     public static void uploadFromUri(Uri fileUri , FragmentActivity fragmentActivity) {
         final String TAG = "uploadFromUri";
 
@@ -321,8 +301,8 @@ public class DataAccess {
                 // Change The Uri Local Phone with Uri Server ;
                 // To Save Uri Server with the Object Item
 
-                //if(i<ImageActivity.fileUri.size())
-                //     ImageActivity.fileUri.set(i, mDownloadUrl);
+                //if(i<launchCameraActivity.fileUri.size())
+                //     launchCameraActivity.fileUri.set(i, mDownloadUrl);
                 Log.d(TAG, "mDownloadUrl:" + mDownloadUrl[0]);
             }
         }).addOnFailureListener(fragmentActivity, new OnFailureListener() {
