@@ -119,8 +119,14 @@
                     android:onClick="update"
                     android:text="Upfate" />
 
+                <com.google.android.gms.maps.MapView
+                    android:id="@+id/mapViewUpdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="500dp" />
+
             </LinearLayout>
         </RelativeLayout>
+
     </ScrollView>
 
 </FrameLayout>

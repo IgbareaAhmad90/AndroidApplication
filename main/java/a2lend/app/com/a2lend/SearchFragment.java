@@ -55,6 +55,13 @@ public class SearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //  created
 
+        if(SaveSettingsUser.getLocation() == null){
+            MySupport.showMessageDialog(getContext(),"Your location is not known","To be used in the function should be declared your location");
+            MySupport.goToFragment(new ProfileUpdateFragment(),getActivity());
+        }
+
+
+
         //region init ListView
         listView = (ListView) view.findViewById(R.id.SearchListView);
         adapter = new MyCustomAdapter(DataAccess.resulSearchList); // MyListItems
@@ -311,7 +318,7 @@ public class SearchFragment extends Fragment {
 
                         DataAccess.myListItems.remove(item);
 
-                        Location MyLocation =  MySupport.getlocation(getActivity());
+                        Location MyLocation =  SaveSettingsUser.getLocation();
                         Item itemTemp = new Item();
                         itemTemp.id=item.getId();
                         itemTemp.user=item.getUser();

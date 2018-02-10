@@ -46,6 +46,13 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
          View rootView =inflater.inflate(R.layout.search_by_location,null);
         //super.onCreateView(inflater, container, savedInstanceState);
         // on create
+        if(SaveSettingsUser.getLocation() == null){
+            MySupport.showMessageDialog(getContext(),"Your location is not known","To be used in the function should be declared your location");
+            MySupport.goToFragment(new ProfileUpdateFragment(),getActivity());
+        }
+
+
+
         //region init MapView
         mMapView = (MapView) rootView.findViewById(R.id.SearchMap);
         mMapView.onCreate(savedInstanceState);
@@ -83,11 +90,15 @@ public class SearchByLocation extends Fragment implements EasyPermissions.Permis
                 });
 
                 googleMap.setMyLocationEnabled(true);
-                Location Mylocation = MySupport.getlocation(getActivity());
+                Location Mylocation = SaveSettingsUser.getLocation();
 
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng( Mylocation.getLatitude(),Mylocation.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(sydney).title("You Are Location").snippet("Marker Description"));
+                googleMap.addMarker(new MarkerOptions().position(sydney).title("Home Location").snippet("Home"));
+
+                Mylocation = MySupport.getlocation(getActivity());
+                sydney = new LatLng( Mylocation.getLatitude(),Mylocation.getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(sydney).title("Location Live").snippet("Now"));
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();

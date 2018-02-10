@@ -1,7 +1,10 @@
 package a2lend.app.com.a2lend;
 
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.DrawableWrapper;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -23,6 +26,10 @@ import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +40,9 @@ import java.util.List;
 
 public class MyListItemsFragment extends Fragment {
     boolean flagRefreshList = true;
-    MyCustomAdapter adapter;
+    static MyCustomAdapter adapter;
     ListView listv;
+
 
     @Nullable
     @Override
@@ -49,6 +57,10 @@ public class MyListItemsFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //  created
+
+
+
+
 
         listv = (ListView)view.findViewById(R.id.list);
         listv.clearAnimation();
@@ -88,11 +100,12 @@ public class MyListItemsFragment extends Fragment {
             public void run(){
                 //do something
                 if(flagRefreshList) {
-                    flagRefreshList = false;
                     adapter.notifyDataSetChanged();
+                    flagRefreshList = false;
                 }
+
             }
-        }, 100);
+        }, 1000);
         //endregion Handler flagRefreshList
 
     }
@@ -148,7 +161,7 @@ public class MyListItemsFragment extends Fragment {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ShowItemDialog(item);
+                    ShowItemDialog(item,imageView.getDrawable());
                 }
             });
 
@@ -157,7 +170,7 @@ public class MyListItemsFragment extends Fragment {
             ShowButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ShowItemDialog(item);
+                    ShowItemDialog(item,imageView.getDrawable());
                 }
             });
             //endregion
@@ -172,15 +185,22 @@ public class MyListItemsFragment extends Fragment {
                     alert.setMessage("Are you sure you want to delete?");
                     alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // continue with delete
-                            if(DataAccess.myListItems.remove(item))
-                                Log.d("MyListDelete", "Delete successful");
-                            if(DataAccess.deleteItem(item))
-                                Log.d("MyListDelete", "Delete successful ");
 
-                           //notify Data Set List Changed
-                            adapter.notifyDataSetChanged();
-                            flagRefreshList=true;
+                            new AsyncTask<String, String, String>() {
+                                @Override
+                                protected String doInBackground(String... strings) {
+                                    // continue with delete
+                                    if(DataAccess.myListItems.remove(item))
+                                        Log.d("MyListDelete", "Delete successful");
+                                    if(DataAccess.deleteItem(item))
+                                        Log.d("MyListDelete", "Delete successful ");
+
+                                    //notify Data Set List Changed
+                                    flagRefreshList=true;
+                                    return null;
+                                }
+                            }.execute();
+
                         }
                     });
                     alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -191,8 +211,6 @@ public class MyListItemsFragment extends Fragment {
                     });
                     alert.show();
 
-
-
                 }
             });
             //endregion
@@ -202,7 +220,7 @@ public class MyListItemsFragment extends Fragment {
             UpdateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    UpdateItemDialog(item);
+                    UpdateItemDialog(item,imageView.getDrawable());
 
 
                 }
@@ -214,7 +232,7 @@ public class MyListItemsFragment extends Fragment {
 
         }
 
-        private void ShowItemDialog(Item item){
+        private void ShowItemDialog(Item item, Drawable drawable){
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle(item.name);
@@ -224,13 +242,13 @@ public class MyListItemsFragment extends Fragment {
             alertDialogBuilder.setView(view);
             final AlertDialog alertDialog  = alertDialogBuilder.show();
             ImageView image= (ImageView) view.findViewById(R.id.ImageViewFullScreen);
-
-            StorageReference mStorageRef;
+            image.setImageDrawable(drawable);
+         /*   StorageReference mStorageRef;
             mStorageRef = FirebaseStorage.getInstance().getReference().child("photos").child(item.getImagesUri());
             Glide.with(getContext())
                     .using(new FirebaseImageLoader())
                     .load(mStorageRef)
-                    .into(image);
+                    .into(image);*/
 
 
             TextView des= (TextView) view.findViewById(R.id.disItemDialog);
@@ -251,7 +269,7 @@ public class MyListItemsFragment extends Fragment {
             }
         }
 
-        private void UpdateItemDialog(final Item item){
+        private void UpdateItemDialog(final Item item,Drawable drawable){
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
             alertDialogBuilder.setTitle("Update");
@@ -262,14 +280,15 @@ public class MyListItemsFragment extends Fragment {
             final AlertDialog alertDialog  = alertDialogBuilder.show();
 
             ImageView image= (ImageView) view.findViewById(R.id.DialogUpdateItemImage);
+            image.setImageDrawable(drawable);
 
-            StorageReference mStorageRef;
+           /* StorageReference mStorageRef;
             mStorageRef = FirebaseStorage.getInstance().getReference().child("photos").child(item.getImagesUri());
             Glide.with(getContext())
                     .using(new FirebaseImageLoader())
                     .load(mStorageRef)
                     .into(image);
-
+            */
             final EditText name = (EditText) view.findViewById(R.id.DialogUpdateItemName);
             name.setText(item.name);
 
@@ -285,7 +304,7 @@ public class MyListItemsFragment extends Fragment {
 
                         DataAccess.myListItems.remove(item);
 
-                        Location MyLocation =  MySupport.getlocation(getActivity());
+                        Location MyLocation =  SaveSettingsUser.getLocation();
                         Item itemTemp = new Item();
                         itemTemp.id=item.getId();
                         itemTemp.user=item.getUser();
@@ -308,7 +327,6 @@ public class MyListItemsFragment extends Fragment {
             }
 
 
-
             ImageButton BackButton = (ImageButton) view.findViewById(R.id.DialogGoBackButton);
             BackButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -321,7 +339,6 @@ public class MyListItemsFragment extends Fragment {
         }
 
     }
-
-
+    // get news from server
 
 }

@@ -2,6 +2,7 @@ package a2lend.app.com.a2lend;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.print.pdf.PrintedPdfDocument;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -45,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
+
     public void signin(final View view) {
+
+
 
         //region Check Validation
         final String email = emailEditText.getText().toString();
@@ -77,11 +81,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         //endregion
-
         progressDialog.setTitle("Login ...");
         progressDialog.setMessage("Wait .. ");
         progressDialog.show();
-
         //region Login FireBase With Email Password
         mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -170,12 +172,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void forgotPassword(View view) {
-        // ToDo forgotPassword
+        if(emailEditText.getText().toString().isEmpty()) {
+            emailEditText.setError("Email is required");
+            emailEditText.requestFocus();
+            return;
+        }
+        if(!Patterns.EMAIL_ADDRESS.matcher(emailEditText.getText().toString()).matches()){
+            emailEditText.setError("Please enter a valid Email");
+            emailEditText.requestFocus();
+            return;
+        }
+        DataAccess.sendPasswordResetEmail(this,emailEditText.getText().toString());
     }
 
     public void register(View view){
         startActivity(new Intent(this,Register.class));
     }
+
 
 
 }

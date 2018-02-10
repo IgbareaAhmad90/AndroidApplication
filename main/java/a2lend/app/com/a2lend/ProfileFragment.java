@@ -43,6 +43,7 @@ public class ProfileFragment extends Fragment implements EasyPermissions.Permiss
         //super.onCreateView(inflater, container, savedInstanceState);
         // on create
 
+
         //region Map Settings Inint
         mMapView = (MapView) rootView.findViewById(R.id.mapProfile);
         mMapView.onCreate(savedInstanceState);

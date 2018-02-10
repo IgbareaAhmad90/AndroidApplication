@@ -88,7 +88,6 @@ public class Register extends AppCompatActivity implements View.OnClickListener 
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressBar.setVisibility(View.GONE);
                         if(task.isSuccessful()) {
-                            // Todo Intent
                             Toast.makeText(getApplicationContext(), "createUserWithEmail:success", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(Register.this ,HomePageActivity.class);
                            // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

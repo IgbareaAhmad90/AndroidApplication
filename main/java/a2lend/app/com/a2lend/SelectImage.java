@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -30,6 +31,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -72,6 +77,14 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(SaveSettingsUser.getLocation() == null){
+            MySupport.showMessageDialog(getContext(),"Your location is not known","To be used in the function should be declared your location");
+            MySupport.goToFragment(new ProfileUpdateFragment(),getActivity());
+        }
+
+
+
         // Initialize Firebase Storage Ref
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
@@ -126,7 +139,6 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
             @Override
             public void onClick(View v) {
 
-
                 final TextView ItemName = getActivity().findViewById(R.id.ItemName);
                 final TextView ItemDescription = getActivity().findViewById(R.id.ItemDiscretion);
 
@@ -155,8 +167,12 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
                     return;
                 }
 
+                UploadImageAsyncTask uploadImageAsyncTask = new UploadImageAsyncTask();
+                uploadImageAsyncTask.doInBackground(uriCheesed.toString());
+
+
                 //Upload Image Server
-                uploadFromUri(uriCheesed);
+               // uploadFromUri(uriCheesed);
 
                 final String permissionLocation = Manifest.permission.ACCESS_FINE_LOCATION;
                 final String rationale_location_message = "This sample find location from your phone to Use GoogleMaps.";
@@ -348,5 +364,71 @@ public class SelectImage extends Fragment  implements EasyPermissions.Permission
     }
 
 
+    public class UploadImageAsyncTask extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        //    Toast.makeText(getActivity(),s, Toast.LENGTH_SHORT).show();
+            Log.d("onPreExecute",s);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+          //  Toast.makeText(getActivity(),"Start Upload File To Server", Toast.LENGTH_SHORT).show();
+            Log.d("onPostExecute","Start");
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+             Uri fileUri =Uri.parse(strings[0]);
+
+            final String m_path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
+
+            Log.d("PathImage",m_path);
+            Log.d(TAG, "uploadFromUri:src:" + fileUri.toString());
+
+            // Get a reference to store file at photos/<FILENAME>.jpg
+            final StorageReference photoRef = mStorageRef.child("photos").child(fileUri.getLastPathSegment());
+
+
+            //region Upload file to Firebase Storage
+            Log.d(TAG, "uploadFromUri:dst:" + photoRef.getPath());
+            photoRef.putFile(fileUri).addOnSuccessListener(getActivity(), new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                    // Upload succeeded
+                    Log.d(TAG, "uploadFromUri:onSuccess");
+
+                    // Get the public download URL
+                    mDownloadUrl = taskSnapshot.getMetadata().getDownloadUrl();
+
+                    Log.d(TAG, "mDownloadUrl:" + mDownloadUrl);
+
+                    // Toast.makeText(getActivity(),"onSuccess", Toast.LENGTH_SHORT).show();
+
+                }
+            }).addOnFailureListener(getActivity(), new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Upload failed
+                    Log.w(TAG, "uploadFromUri:onFailure", exception);
+
+                    mDownloadUrl = null;
+                    //  Toast.makeText(getActivity(), "Error: upload failed", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+
+            if(mDownloadUrl == null) {
+                return "Failure";
+            }
+
+            return "Success - Upload File ";
+        }
+    }
 
 }

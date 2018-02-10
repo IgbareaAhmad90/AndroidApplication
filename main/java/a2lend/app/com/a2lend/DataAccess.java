@@ -1,10 +1,14 @@
 package a2lend.app.com.a2lend;
 
+import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -14,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,7 +86,25 @@ public class DataAccess {
         auth.getCurrentUser().updatePhoneNumber(credential);
     }
 
+    public static void sendPasswordResetEmail(final Context context, String emailAddress){
 
+        auth.sendPasswordResetEmail(emailAddress)
+                .addOnSuccessListener(new OnSuccessListener() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        MySupport.showMessageDialog(context,"Send Password Reset Email","Success");
+                    }
+
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        MySupport.showMessageDialog(context,"Send Password Reset Email","Failure");
+
+                    }
+                });
+
+
+    }
 
     public static void UpdateUser( String Name,String Email , String Password , String Phone ){
 
@@ -156,7 +179,6 @@ public class DataAccess {
             return null;
 
         ValueEventListener postListener = new ValueEventListener() {
-
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -316,6 +338,78 @@ public class DataAccess {
         //endregion [END upload_from_uri]
 
     }
+
+
+    private class MyTask extends AsyncTask<String,String,String>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            ReferenceItems.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                   // LoadData(dataSnapshot);
+                    String userID = dataSnapshot.child("user").getValue(String.class);
+                    if(userID.equals(getUserId()))
+                    {
+                        Item item =dataSnapshot.getValue(Item.class);
+                        myListItems.add(item);
+                    }
+                    MyListItemsFragment.adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    String userID = dataSnapshot.child("user").getValue(String.class);
+                    if(userID.equals(getUserId()))
+                    {
+                        Item item =dataSnapshot.getValue(Item.class);
+                        for(Item i : myListItems) {
+                            if( i.getId().equals(item.id)){
+                              myListItems.remove(i);
+                              myListItems.add(item);
+                            }
+                        }
+                    }
+                    MyListItemsFragment.adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    String itemId = dataSnapshot.child("id").getValue(String.class);
+                        for(Item i : myListItems) {
+                            if( i.getId().equals(itemId)){
+                                myListItems.remove(i);
+                            }
+                        }
+                    MyListItemsFragment.adapter.notifyDataSetChanged();
+                }
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+
+
+    }
+
 
 
 }
